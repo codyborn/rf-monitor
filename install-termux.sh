@@ -40,7 +40,7 @@ STUB
     cmake .. \
         -DENABLE_RTLSDR=OFF \
         -DENABLE_SOAPYSDR=OFF \
-        -DCMAKE_INSTALL_PREFIX="$PREFIX" \
+        -DCMAKE_INSTALL_PREFIX="${PREFIX:-/data/data/com.termux/files/usr}" \
         -DCMAKE_C_FLAGS="-Wno-implicit-function-declaration" \
         -DCMAKE_EXE_LINKER_FLAGS="$HOME/rtl_433_build/pthread_cancel_stub.o"
     make -j$(nproc)
