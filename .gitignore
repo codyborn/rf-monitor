@@ -1,0 +1,8 @@
+# Raw signal captures
+*.cu8
+*.json
+*.jsonl
+
+# Misc
+.spec-workflow/
+.DS_Store
