@@ -26,11 +26,22 @@ else
     rm -rf rtl_433_build
     git clone https://github.com/merbanan/rtl_433.git rtl_433_build
     cd rtl_433_build
-    # Patch out pthread_cancel (not available on Android/Bionic)
-    sed -i 's/pthread_cancel/pthread_kill/g; s/pthread_kill(thread, 0)/pthread_kill(thread, 0)/' src/rtl_433.c 2>/dev/null || true
-    find . -name '*.c' -exec sed -i 's/pthread_cancel(\([^)]*\))/pthread_kill(\1, SIGUSR1)/g' {} +
+    # Android's Bionic libc doesn't have pthread_cancel.
+    # Create a stub and compile with relaxed warnings.
+    cat > pthread_cancel_stub.c << 'STUB'
+#include <pthread.h>
+#include <signal.h>
+int pthread_cancel(pthread_t thread) {
+    return pthread_kill(thread, SIGUSR1);
+}
+STUB
+    clang -c pthread_cancel_stub.c -o pthread_cancel_stub.o
     mkdir build && cd build
-    cmake .. -DENABLE_RTLSDR=OFF -DENABLE_SOAPYSDR=OFF -DCMAKE_C_FLAGS="-Wno-error=implicit-function-declaration"
+    cmake .. \
+        -DENABLE_RTLSDR=OFF \
+        -DENABLE_SOAPYSDR=OFF \
+        -DCMAKE_C_FLAGS="-Wno-implicit-function-declaration" \
+        -DCMAKE_EXE_LINKER_FLAGS="$HOME/rtl_433_build/pthread_cancel_stub.o"
     make -j$(nproc)
     make install
     cd "$HOME"
