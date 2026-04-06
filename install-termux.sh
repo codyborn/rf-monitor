@@ -14,29 +14,11 @@ echo "[1/5] Updating packages..."
 pkg update -y
 
 # 2. Install build tools
-echo "[2/5] Installing build tools..."
-pkg install -y cmake git make clang pkg-config libusb
+echo "[2/4] Installing build tools..."
+pkg install -y cmake git make clang
 
-# 3. Build librtlsdr from source (not in default Termux repos)
-echo "[3/5] Building librtlsdr..."
-if pkg-config --exists librtlsdr 2>/dev/null; then
-    echo "  librtlsdr already installed, skipping build."
-else
-    cd "$HOME"
-    rm -rf librtlsdr_build
-    git clone https://github.com/steve-m/librtlsdr.git librtlsdr_build
-    cd librtlsdr_build
-    mkdir build && cd build
-    cmake ..
-    make -j$(nproc)
-    make install
-    cd "$HOME"
-    rm -rf librtlsdr_build
-    echo "  librtlsdr installed."
-fi
-
-# 4. Build rtl_433 from source
-echo "[4/6] Building rtl_433..."
+# 3. Build rtl_433 from source (without librtlsdr — uses rtl_tcp instead)
+echo "[3/4] Building rtl_433..."
 if command -v rtl_433 &>/dev/null; then
     echo "  rtl_433 already installed, skipping build."
 else
@@ -45,7 +27,7 @@ else
     git clone https://github.com/merbanan/rtl_433.git rtl_433_build
     cd rtl_433_build
     mkdir build && cd build
-    cmake ..
+    cmake .. -DENABLE_RTLSDR=OFF -DENABLE_SOAPYSDR=OFF
     make -j$(nproc)
     make install
     cd "$HOME"
@@ -54,7 +36,7 @@ else
 fi
 
 # 4. Install monitor script
-echo "[5/6] Installing monitor script..."
+echo "[4/4] Installing monitor script..."
 mkdir -p "$HOME/radio"
 cat > "$HOME/radio/monitor.sh" << 'SCRIPT'
 #!/data/data/com.termux/files/usr/bin/bash
@@ -121,7 +103,7 @@ SCRIPT
 chmod +x "$HOME/radio/monitor.sh"
 
 # 5. Done
-echo "[6/6] Setup complete!"
+echo "Setup complete!"
 echo ""
 echo "=== Quick Start ==="
 echo "1. Install 'SDR Driver' app by Martin Marinov from Play Store"
