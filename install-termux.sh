@@ -63,7 +63,7 @@ cat > "$HOME/radio/monitor.sh" << 'SCRIPT'
 
 FREQS="-f 433.92M -f 915M"
 EXTRA=""
-DEVICE="-d rtl_tcp:127.0.0.1:1234"
+DEVICE="-d rtl_tcp:127.0.0.1:14423"
 
 for arg in "$@"; do
     case $arg in
@@ -80,7 +80,7 @@ for arg in "$@"; do
             echo "  --save  Save raw .cu8 signal files"
             echo "  --usb   Direct USB access (requires root)"
             echo ""
-            echo "Default: connects via rtl_tcp on 127.0.0.1:1234"
+            echo "Default: connects via rtl_tcp on 127.0.0.1:14423"
             echo "Start SDR Driver app first, enable rtl_tcp server."
             exit 0
             ;;
